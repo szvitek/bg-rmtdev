@@ -12,10 +12,12 @@ import ResultsCount from './components/ResultsCount';
 import SortingControls from './components/SortingControls';
 import JobList from './components/JobList';
 import PaginationControls from './components/PaginationControls';
+import { JobItem } from './lib/types';
 
 function App() {
   const [searchText, setSearchText] = useState('');
-  const [jobItems, setJobItems] = useState([]);
+  const [jobItems, setJobItems] = useState<JobItem[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (!searchText) return;
@@ -24,10 +26,12 @@ function App() {
     // if it's related to some event just in our case
     // but we do it like this because it will be  refactored later anyway
     const fetchData = async () => {
+      setIsLoading(true);
       const response = await fetch(
         `https://bytegrad.com/course-assets/projects/rmtdev/api/data?search=${searchText}`
       );
       const data = await response.json();
+      setIsLoading(false);
       setJobItems(data.jobItems);
     };
 
@@ -51,7 +55,7 @@ function App() {
             <SortingControls />
           </SidebarTop>
 
-          <JobList jobItems={jobItems} />
+          <JobList jobItems={jobItems} isLoading={isLoading} />
 
           <PaginationControls />
         </Sidebar>
