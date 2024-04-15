@@ -1,26 +1,4 @@
-import { useEffect, useState } from 'react';
-
-export default function SearchForm() {
-  const [searchText, setSearchText] = useState('');
-  const [jobItems, setJobItems] = useState([]);
-
-  useEffect(() => {
-    if (!searchText) return;
-
-    // react recommends to do data fetching in the event handler
-    // if it's related to some event just in our case
-    // but we do it like this because it will be  refactored later anyway
-    const fetchData = async () => {
-      const response = await fetch(
-        `https://bytegrad.com/course-assets/projects/rmtdev/api/data?search=${searchText}`
-      );
-      const data = await response.json();
-      setJobItems(data.jobItems);
-    };
-
-    fetchData();
-  }, [searchText]);
-
+export default function SearchForm({ searchText, setSearchText }) {
   return (
     <form
       onSubmit={(e) => {
