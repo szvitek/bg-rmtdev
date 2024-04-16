@@ -12,13 +12,11 @@ import ResultsCount from './components/ResultsCount';
 import SortingControls from './components/SortingControls';
 import JobList from './components/JobList';
 import PaginationControls from './components/PaginationControls';
-import { useActiveId, useJobItems } from './lib/hooks';
+import { useJobItems } from './lib/hooks';
 
 function App() {
   const [searchText, setSearchText] = useState('');
   const [jobItems, isLoading] = useJobItems(searchText);
-  const activeId = useActiveId();
-  console.log(activeId);
 
   return (
     <>

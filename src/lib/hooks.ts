@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { JobItem } from './types';
+import { JobItem, JobItemExtended } from './types';
+import { BASE_API_URL } from './constants';
 
 export function useActiveId() {
   const [activeId, setActiveId] = useState<number | null>(null);
@@ -24,6 +25,36 @@ export function useActiveId() {
   return activeId;
 }
 
+export function useJobItem(id: number | null) {
+  const [jobItem, setJobItem] = useState<JobItemExtended | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (!id) return;
+    const fetchData = async () => {
+      setIsLoading(true);
+      const response = await fetch(`${BASE_API_URL}/${id}`);
+      const data = await response.json();
+      setIsLoading(false);
+      setJobItem(data.jobItem);
+    };
+
+    fetchData();
+  }, [id]);
+
+  return [jobItem, isLoading] as const;
+}
+
+/*
+technically we could combine these 2 hooks into 1 single hook
+function useActiveJobItem() {
+  const activeId = useActiveId();
+  const jobItem = useJobItem(activeId);
+
+  return jobItem;
+}
+*/
+
 export function useJobItems(searchText: string) {
   const [jobItems, setJobItems] = useState<JobItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -38,9 +69,7 @@ export function useJobItems(searchText: string) {
     // but we do it like this because it will be  refactored later anyway
     const fetchData = async () => {
       setIsLoading(true);
-      const response = await fetch(
-        `https://bytegrad.com/course-assets/projects/rmtdev/api/data?search=${searchText}`
-      );
+      const response = await fetch(`${BASE_API_URL}?search=${searchText}`);
       const data = await response.json();
       setIsLoading(false);
       setJobItems(data.jobItems);
