@@ -29,8 +29,7 @@ export function useJobItem(id: number | null) {
     enabled: !!id, // fetch on mount? only if id is truthy
   });
 
-  const jobItem = data?.jobItem;
-  return { jobItem, isLoading, error } as const;
+  return { jobItem: data?.jobItem, isLoading, error } as const;
 }
 
 /*
@@ -43,28 +42,31 @@ function useActiveJobItem() {
 }
 */
 
+type JobItemsApiResponse = {
+  public: boolean;
+  sorted: boolean;
+  jobItems: JobItem[];
+};
+
+const fetchJobItems = async (
+  searchText: string
+): Promise<JobItemsApiResponse> => {
+  const response = await fetch(`${BASE_API_URL}?search=${searchText}`);
+  const data = await response.json();
+  return data;
+};
+
 export function useJobItems(searchText: string) {
-  const [jobItems, setJobItems] = useState<JobItem[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const { data, isLoading } = useQuery({
+    queryKey: ['job-items', searchText],
+    queryFn: () => fetchJobItems(searchText),
+    staleTime: 1000 * 60 * 60, // 1 hour
+    refetchOnWindowFocus: false,
+    retry: false,
+    enabled: !!searchText, // fetch on mount? only if searchText is truthy
+  });
 
-  useEffect(() => {
-    if (!searchText) return;
-
-    // react recommends to do data fetching in the event handler
-    // if it's related to some event just in our case
-    // but we do it like this because it will be  refactored later anyway
-    const fetchData = async () => {
-      setIsLoading(true);
-      const response = await fetch(`${BASE_API_URL}?search=${searchText}`);
-      const data = await response.json();
-      setIsLoading(false);
-      setJobItems(data.jobItems);
-    };
-
-    fetchData();
-  }, [searchText]);
-
-  return { jobItems, isLoading } as const;
+  return { jobItems: data?.jobItems, isLoading } as const;
 }
 
 // useDebounce
