@@ -81,3 +81,22 @@ export function useJobItems(searchText: string) {
 
   return { jobItemsSliced, isLoading, totalNumberOfResults } as const;
 }
+
+// useDebounce
+// JS: https://github.com/uidotdev/usehooks/blob/main/index.js#L239
+// TS: https://github.com/juliencrn/usehooks-ts/blob/usehooks-ts%402.16.0/packages/usehooks-ts/src/useDebounce/useDebounce.ts
+export function useDebounce<T>(value: T, delay = 1000) {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
