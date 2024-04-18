@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Background from './components/Background';
 import Container from './components/Container';
 import Footer from './components/Footer';
@@ -13,11 +13,19 @@ import SortingControls from './components/SortingControls';
 import JobList from './components/JobList';
 import PaginationControls from './components/PaginationControls';
 import { useDebounce, useJobItems } from './lib/hooks';
+import { Toaster } from 'react-hot-toast';
+import { handleError } from './lib/utils';
 
 function App() {
   const [searchText, setSearchText] = useState('');
   const debouncedSearchText = useDebounce(searchText, 500);
-  const { jobItems, isLoading } = useJobItems(debouncedSearchText);
+  const { jobItems, isLoading, error } = useJobItems(debouncedSearchText);
+
+  useEffect(() => {
+    if (error) {
+      handleError(error);
+    }
+  }, [error]);
 
   const totalNumberOfResults = jobItems?.length || 0;
   const jobItemsSliced = jobItems?.slice(0, 7) || [];
@@ -46,6 +54,7 @@ function App() {
         <JobItemContent />
       </Container>
       <Footer />
+      <Toaster position="top-right" />
     </>
   );
 }

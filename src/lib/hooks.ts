@@ -12,7 +12,8 @@ const fetchJobItem = async (id: number): Promise<JobItemApiResponse> => {
   const response = await fetch(`${BASE_API_URL}/${id}`);
 
   if (!response.ok) {
-    throw new Error('Network response was not ok');
+    const errorMessage = await response.text();
+    throw new Error(errorMessage);
   }
 
   const data = await response.json();
@@ -32,16 +33,6 @@ export function useJobItem(id: number | null) {
   return { jobItem: data?.jobItem, isLoading, error } as const;
 }
 
-/*
-technically we could combine these 2 hooks into 1 single hook
-function useActiveJobItem() {
-  const activeId = useActiveId();
-  const jobItem = useJobItem(activeId);
-
-  return jobItem;
-}
-*/
-
 type JobItemsApiResponse = {
   public: boolean;
   sorted: boolean;
@@ -52,12 +43,16 @@ const fetchJobItems = async (
   searchText: string
 ): Promise<JobItemsApiResponse> => {
   const response = await fetch(`${BASE_API_URL}?search=${searchText}`);
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.description);
+  }
   const data = await response.json();
   return data;
 };
 
 export function useJobItems(searchText: string) {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ['job-items', searchText],
     queryFn: () => fetchJobItems(searchText),
     staleTime: 1000 * 60 * 60, // 1 hour
@@ -66,7 +61,7 @@ export function useJobItems(searchText: string) {
     enabled: !!searchText, // fetch on mount? only if searchText is truthy
   });
 
-  return { jobItems: data?.jobItems, isLoading } as const;
+  return { jobItems: data?.jobItems, isLoading, error } as const;
 }
 
 // useDebounce
