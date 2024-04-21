@@ -3,6 +3,7 @@ import { JobItem, JobItemExtended } from './types';
 import { BASE_API_URL } from './constants';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { BookmarksContext } from '../contexts/BookmarksContext';
+import { ActiveIdContext } from '../contexts/ActiveIdContext';
 
 type JobItemApiResponse = {
   public: boolean;
@@ -107,6 +108,9 @@ export function useDebounce<T>(value: T, delay = 1000) {
   return debouncedValue;
 }
 
+// optimization:
+// using this in it's own context make the event listeners attached only once
+// and this is what we want
 export function useActiveId() {
   const [activeId, setActiveId] = useState<number | null>(null);
 
@@ -168,6 +172,18 @@ export function useBookmarksContext() {
   if (!context) {
     throw new Error(
       'useBookmarksContext must be used within a BookmarksContextProvider'
+    );
+  }
+
+  return context;
+}
+
+export function useActiveIdContext() {
+  const context = useContext(ActiveIdContext);
+
+  if (!context) {
+    throw new Error(
+      'useActiveIdContext must be used within a ActiveIdContextProvider'
     );
   }
 

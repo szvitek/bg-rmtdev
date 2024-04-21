@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
-import { useActiveId, useJobItem } from '../lib/hooks';
+import { useActiveIdContext, useJobItem } from '../lib/hooks';
 import BookmarkIcon from './BookmarkIcon';
 import Spinner from './Spinner';
 import { handleError } from '../lib/utils';
 
 export default function JobItemContent() {
-  const activeId = useActiveId();
+  const { activeId } = useActiveIdContext();
   const { jobItem, isLoading, error } = useJobItem(activeId);
 
   useEffect(() => {
